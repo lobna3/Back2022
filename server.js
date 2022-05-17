@@ -23,6 +23,7 @@ require('./routers/routersSuivie')(app)
 require('./routers/routersPaiement')(app)
 require('./routers/routersProduitService')(app)
 require('./routers/routersDetailArticle')(app)
+require('./routers/Payment')(app)
 
 
 
