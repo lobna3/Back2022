@@ -12,13 +12,11 @@ module.exports = function gmail_mailer(to, subject, content) {
       pass: process.env.GMAIL_PASS, // generated ethereal password
     },
     tls: {
-      rejectUnauthorized: false
-  }
-    
+      rejectUnauthorized: false,
+    },
   });
-  
 
-   //ekteb el email mta3k hna
+  //ekteb el email mta3k hna
   // send mail with defined transport object
   let info = transport.sendMail({
     from: '"Super Vision 👻" <yousfi90lobna@gmail.com>', // sender address
