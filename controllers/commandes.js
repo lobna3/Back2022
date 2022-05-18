@@ -331,7 +331,7 @@ const generateInvoice = async (req, res) => {
 
 
 const testEmail = async (req, res)=>{
-  await gmail_mailer(req.body.email, "test mail", "hi there !!!")
+  await gmail_mailer(req.body.email, "Test Mail Project PFE 2022", "Bonjour !!!")
   res.status(200).json({success: true})
 }
 
