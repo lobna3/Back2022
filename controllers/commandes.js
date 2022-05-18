@@ -2,14 +2,12 @@ const Commande = require("../models/Commande");
 const DetailArticle = require("../models/DetailArticle");
 const Suivie = require("../models/Suivie");
 const Paiement = require("../models/Paiement");
-const gmail_mailer = require("../config/mailer")
+const gmail_mailer = require("../config/mailer");
 const mongoose = require("mongoose");
 var ObjectId = mongoose.Types.ObjectId;
-
-
+const generatePDF = require("../utils/generatePdf");
 
 // CRUD Commandes
-
 
 const getCommandes = async (req, res) => {
   try {
@@ -82,7 +80,13 @@ const getCommandeById = async (req, res) => {
     ]).exec(async function (err, results) {
       if (results && results.length > 0) {
         var r = await Commande.populate(results[0], { path: "client" });
-        res.send(r);
+        let mappedResult = r.articles.map(async (elm) => {
+          let article = await DetailArticle.findById(elm).populate("service");
+          return article;
+        });
+        let newArticles = await Promise.all(mappedResult);
+        let finalResult = { ...r, articles: newArticles };
+        res.send(finalResult);
       } else {
         res.send({});
       }
@@ -202,7 +206,8 @@ const supprimerCommande = async (req, res) => {
 
 const generateInvoice = async (req, res) => {
   try {
-    let { articles, invoiceId } = req.body;
+    let { commandeDetails } = req.body;
+    console.log("Commande details", commandeDetails.articles);
     const pdf = await generatePDF(
       `
     <html>
@@ -271,19 +276,16 @@ const generateInvoice = async (req, res) => {
       <h4>Invoice</h4>
       <header>
         <div class="address-block">
-          <h5>Recipient</h5>
+          <h5>ADRESSE FACTURATION</h5>
           <address>
-            Doug Funnie<br />
-            321 Customer St.<br />
-            Happy Place, FL 17641<br />
+            ${commandeDetails.adresseFacturation}<br />
+           
           </address>
         </div>
         <div class="address-block">
-          <h5>Sender</h5>
+          <h5>ADRESSE LIVRAISON</h5>
           <address>
-            Skeeter Valentine<br />
-            123 Business St.<br />
-            Fake Town, TN 37189<br />
+           ${commandeDetails.adresseLivraison}
           </address>
         </div>
       </header>
@@ -291,19 +293,21 @@ const generateInvoice = async (req, res) => {
         <table>
           <thead>
             <tr>
-              <th style="text-align:left;">Item Description</th>
-              <th>Price</th>
-              <th>Quantity</th>
-              <th>Total</th>
+              <th style="text-align:left;">PRODUIT</th>
+              <th>PRIX</th>
+              <th>QUANITE</th>
+              <th>TAXE</th>
+              <th>TOTAL</th>
             </tr>
           </thead>
           <tbody>
-            ${articles.map(
+            ${commandeDetails.articles.map(
               (elm) => `  <tr>
-            <td style="text-align:left;">${elm.name}</td>
-            <td style="text-align:center;">${elm.price}</td>
+            <td style="text-align:left;">${elm.service.titre}</td>
+            <td style="text-align:center;">${elm.pu}</td>
             <td style="text-align:center;">${elm.qte}</td>
-            <td style="text-align:center;">${elm.totalPrice}</td>
+            <td style="text-align:center;">${elm.taxe}</td>
+            <td style="text-align:center;">${elm.prix}</td>
           </tr>`
             )}
          
@@ -311,16 +315,31 @@ const generateInvoice = async (req, res) => {
           <tfoot>
             <tr>
               <td colSpan="2" />
-              <td style="text-align:right;"><strong>Total</strong></td>
-              <td style="text-align:center;">$70.70</td>
+              <td style="text-align:right;"><strong>TOTAL HT</strong></td>
+              <td style="text-align:center;">${commandeDetails.total}</td>
             </tr>
+            <tr>
+            <td colSpan="2" />
+            <td style="text-align:right;"><strong>TAXES</strong></td>
+            <td style="text-align:center;">${commandeDetails.taxes}</td>
+          </tr>
+          <tr>
+          <td colSpan="2" />
+          <td style="text-align:right;"><strong>REMISE</strong></td>
+          <td style="text-align:center;">${commandeDetails.remise}</td>
+        </tr>
+        <tr>
+        <td colSpan="2" />
+        <td style="text-align:right;"><strong>TOTAL TTC</strong></td>
+        <td style="text-align:center;">${commandeDetails.totalTtc}</td>
+      </tr>
           </tfoot>
         </table>
       </div>
     </body>
   </html>
       `,
-      invoiceId
+      commandeDetails._id
     );
 
     res.json({ success: true, message: "Document Ajouter" });
@@ -329,11 +348,10 @@ const generateInvoice = async (req, res) => {
   }
 };
 
-
-const testEmail = async (req, res)=>{
-  await gmail_mailer(req.body.email, req.body.subject, req.body.description)
-  res.status(200).json({success: true})
-}
+const testEmail = async (req, res) => {
+  await gmail_mailer(req.body.email, req.body.subject, req.body.description);
+  res.status(200).json({ success: true });
+};
 
 module.exports = {
   getCommandes,
@@ -343,5 +361,5 @@ module.exports = {
   getCommandeById,
   modifierStatus,
   generateInvoice,
-  testEmail
+  testEmail,
 };

@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-
+const Commande = require("../models/Commande");
 module.exports = async (html = "", invoiceNumber) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -14,6 +14,9 @@ module.exports = async (html = "", invoiceNumber) => {
   });
   await page.close();
   await browser.close();
-
+  console.log("Invoice Number",invoiceNumber)
+  let result = await Commande.findByIdAndUpdate(invoiceNumber, {
+    documentUrl: `documents/${invoiceNumber}.pdf`,
+  });
   return pdfBuffer;
 };
