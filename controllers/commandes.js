@@ -236,7 +236,8 @@ const ajouterFacture = async (req, res) => {
         new_paiement.typePaiement="carte bancaire"
         new_paiement.commande = new_commande._id;
         new_paiement.save();*/
-    let commande = await getCommandeInfo(new_commande._id);
+
+    //let commande = await getCommandeInfo(new_commande._id);
     const pdf = await generatePDF(
       `
         <html>
@@ -459,7 +460,6 @@ const generateInvoice = async (req, res) => {
             font-size: 16px;
             line-height: 24px;
           }
-      
           body > h4 {
             font-size: 24px;
             line-height: 24px;
@@ -529,10 +529,9 @@ const generateInvoice = async (req, res) => {
           </div>
           </div>
           </header>
-         
           <div className="card-body">
-            <div className="row mb-4">
-              <div className="col-sm-6">
+            <div className="row">
+              <div className="col-md-6">
                 <h6 className="mb-3"></h6>
                 <div>
                   <strong>Arsela</strong>
@@ -542,7 +541,7 @@ const generateInvoice = async (req, res) => {
                 <div>Email: info@arsela.co</div>
                 <div>Phone: (+216) 26 314 922</div>
               </div>
-              <div className="col-sm-6">
+              <div className="col-md-6">
                 <h6 className="mb-3"></h6>
                 <div>
                   <strong>Client</strong>
@@ -591,11 +590,11 @@ const generateInvoice = async (req, res) => {
                 )}
              
               </tbody>
+              
             </table>
            
             <div className="row">
-              <div className="col-lg-4 col-sm-5"></div>
-              <div className="col-lg-4 col-sm-5 ml-auto">
+             
                 <table class="table table-clear">
                   <tbody>
                     <tr>
@@ -626,11 +625,11 @@ const generateInvoice = async (req, res) => {
                     </tr>
                   </tbody>
                 </table>
-              </div>
-            </div>
+             
             <div className="card">
               <p>Note:${commandeDetails.note}</p>
             </div>
+          </div>
           </div>
       </body>
       </html>
