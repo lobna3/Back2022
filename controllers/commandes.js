@@ -197,8 +197,9 @@ const ajouterFacture = async (req, res) => {
   try {
     /* commande : {}, 
         details articles : [{} , {}] */
-    // console.log("Commande", req.body.commande);
-    //console.log("Articles", req.body.articles);
+    console.log("Commande", req.body.commande);
+    console.log("Articles", req.body.articles);
+
     const new_commande = new Commande(req.body.commande);
     await new_commande.save();
 
@@ -376,7 +377,7 @@ const ajouterFacture = async (req, res) => {
     let savedCmd = await getCommandeInfo(new_commande._id);
 
     //res.status(200).json({ success: true, data: new_commande });
-     res.status(200).json({ success: true, data: savedCmd });
+    res.status(200).json({ success: true, data: savedCmd });
   } catch (err) {
     // res.end();
     // console.log(err);
@@ -604,5 +605,5 @@ module.exports = {
   modifierStatus,
   generateInvoice,
   testEmail,
-  ajouterFacture
+  ajouterFacture,
 };
