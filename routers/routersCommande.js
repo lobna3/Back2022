@@ -17,6 +17,8 @@ const router = (app) => {
     app.post("/generate/", commandeCtrl.generateInvoice);
    
     app.post("/test", commandeCtrl.testEmail);
+    
+    
 
   }
   

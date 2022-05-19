@@ -3,6 +3,7 @@ const DetailArticle = require("../models/DetailArticle");
 const Suivie = require("../models/Suivie");
 const Paiement = require("../models/Paiement");
 const gmail_mailer = require("../config/mailer");
+const sendMail = require ("../config/nodeMailer")
 const mongoose = require("mongoose");
 var ObjectId = mongoose.Types.ObjectId;
 const generatePDF = require("../utils/generatePdf");
@@ -353,6 +354,8 @@ const testEmail = async (req, res) => {
   res.status(200).json({ success: true });
 };
 
+
+
 module.exports = {
   getCommandes,
   ajouterCommande,
@@ -362,4 +365,5 @@ module.exports = {
   modifierStatus,
   generateInvoice,
   testEmail,
+ 
 };
