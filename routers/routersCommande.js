@@ -5,6 +5,8 @@ const router = (app) => {
     app.get('/commandes', commandeCtrl.getCommandes);
   
     app.post("/ajouter_commande", commandeCtrl.ajouterCommande);
+    
+    app.post("/ajouter_facture", commandeCtrl.ajouterFacture);
   
     app.delete("/delete_commande/:id", commandeCtrl.supprimerCommande);
   

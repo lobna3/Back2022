@@ -50,6 +50,50 @@ const getCommandes = async (req, res) => {
   }
 };
 
+const getCommandeInfo = async (id) => {
+  try {
+    Commande.aggregate([
+      { $match: { _id: ObjectId(id) } },
+      {
+        $lookup: {
+          from: "suivies",
+          localField: "_id",
+          foreignField: "commande",
+          as: "suivies",
+        },
+      },
+      {
+        $lookup: {
+          from: "detailarticles",
+          localField: "_id",
+          foreignField: "commande",
+          as: "articles",
+        },
+      },
+      {
+        $lookup: {
+          from: "paiements",
+          localField: "_id",
+          foreignField: "commande",
+          as: "paiements",
+        },
+      },
+    ]).exec(async function (err, results) {
+      if (results && results.length > 0) {
+        var r = await Commande.populate(results[0], { path: "client" });
+        let mappedResult = r.articles.map(async (elm) => {
+          let article = await DetailArticle.findById(elm).populate("service");
+          return article;
+        });
+        let newArticles = await Promise.all(mappedResult);
+        let finalResult = { ...r, articles: newArticles };
+        return;
+      } else {
+      }
+    });
+  } catch (err) {}
+};
+
 const getCommandeById = async (req, res) => {
   try {
     Commande.aggregate([
@@ -101,7 +145,8 @@ const ajouterCommande = async (req, res) => {
   try {
     /* commande : {}, 
         details articles : [{} , {}] */
-    console.log(req.body.commande);
+    // console.log("Commande", req.body.commande);
+    //console.log("Articles", req.body.articles);
     const new_commande = new Commande(req.body.commande);
     await new_commande.save();
 
@@ -140,6 +185,198 @@ const ajouterCommande = async (req, res) => {
         new_paiement.save();*/
 
     res.status(200).json({ success: true, data: new_commande });
+    // res.status(200).json({ success: true, data: savedCmd });
+  } catch (err) {
+    // res.end();
+    // console.log(err);
+    res.status(500).json({ success: false, data: err.message });
+  }
+};
+
+const ajouterFacture = async (req, res) => {
+  try {
+    /* commande : {}, 
+        details articles : [{} , {}] */
+    // console.log("Commande", req.body.commande);
+    //console.log("Articles", req.body.articles);
+    const new_commande = new Commande(req.body.commande);
+    await new_commande.save();
+
+    if (req.body.articles) {
+      await req.body.articles.map(async (b) => {
+        var new_article = new DetailArticle(b);
+        new_article.commande = new_commande._id;
+        await new_article.save();
+      });
+    }
+
+    if (req.body.suivies) {
+      await req.body.suivies.map(async (a) => {
+        var new_suivie = new Suivie(a);
+        new_suivie.commande = new_commande._id;
+        await new_suivie.save();
+      });
+    }
+
+    if (req.body.paiements) {
+      await req.body.paiements.map(async (c) => {
+        var new_paiement = new Paiement(c);
+        new_paiement.commande = new_commande._id;
+        await new_paiement.save();
+      });
+    }
+
+    /*const new_suivi = new Suivie()
+        new_suivi.titre="Commande crée"
+        new_suivi.commande = new_commande._id;
+        new_suivi.save();*/
+
+    /*const new_paiement = new Paiement()
+        new_paiement.typePaiement="carte bancaire"
+        new_paiement.commande = new_commande._id;
+        new_paiement.save();*/
+    let commande = await getCommandeInfo(new_commande._id);
+    const pdf = await generatePDF(
+      `
+        <html>
+        <head>
+          <title>FACTURE</title>
+          <style>
+            body {
+              padding: 60px;
+              font-family: "Hevletica Neue", "Helvetica", "Arial", sans-serif;
+              font-size: 16px;
+              line-height: 24px;
+            }
+    
+            body > h4 {
+              font-size: 24px;
+              line-height: 24px;
+              text-transform: uppercase;
+              margin-bottom: 60px;
+            }
+    
+            body > header {
+              display: flex;
+            }
+    
+            body > header > .address-block:nth-child(2) {
+              margin-left: 100px;
+            }
+    
+            .address-block address {
+              font-style: normal;
+            }
+    
+            .address-block > h5 {
+              font-size: 14px;
+              line-height: 14px;
+              margin: 0px 0px 15px;
+              text-transform: uppercase;
+              color: #aaa;
+            }
+    
+            .table {
+              width: 100%;
+              margin-top: 60px;
+            }
+    
+            .table table {
+              width: 100%;
+              border: 1px solid #eee;
+              border-collapse: collapse;
+            }
+    
+            .table table tr th,
+            .table table tr td {
+              font-size: 15px;
+              padding: 10px;
+              border: 1px solid #eee;
+              border-collapse: collapse;
+            }
+    
+            .table table tfoot tr td {
+              border-top: 3px solid #eee;
+            }
+          </style>
+        </head>
+        <body>
+          <h4>Invoice</h4>
+          <header>
+            <div class="address-block">
+              <h5>ADRESSE FACTURATION</h5>
+              <address>
+                ${commande.adresseFacturation}<br />
+                ${commande.client.nom}
+                <br/>
+                ${commande.client.prenom}
+              </address>
+            </div>
+            <div class="address-block">
+              <h5>ADRESSE LIVRAISON</h5>
+              <address>
+              ${commande.nFacture}
+               ${commande.adresseLivraison}
+               ${commande.client.email}
+              </address>
+            </div>
+          </header>
+          <div class="table">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align:left;">PRODUIT</th>
+                  <th>PRIX</th>
+                  <th>QUANITE</th>
+                  <th>TAXE</th>
+                  <th>TOTAL</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${commande.articles.map(
+                  (elm) => `  <tr>
+                <td style="text-align:left;">${elm.service.titre}</td>
+                <td style="text-align:center;">${elm.pu}</td>
+                <td style="text-align:center;">${elm.qte}</td>
+                <td style="text-align:center;">${elm.taxe}</td>
+                <td style="text-align:center;">${elm.prix}</td>
+              </tr>`
+                )}
+             
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="2" />
+                  <td style="text-align:right;"><strong>TOTAL HT</strong></td>
+                  <td style="text-align:center;">${commande.total}</td>
+                </tr>
+                <tr>
+                <td colSpan="2" />
+                <td style="text-align:right;"><strong>TAXES</strong></td>
+                <td style="text-align:center;">${commande.taxes}</td>
+              </tr>
+              <tr>
+              <td colSpan="2" />
+              <td style="text-align:right;"><strong>REMISE</strong></td>
+              <td style="text-align:center;">${commande.remise}</td>
+            </tr>
+            <tr>
+            <td colSpan="2" />
+            <td style="text-align:right;"><strong>TOTAL TTC</strong></td>
+            <td style="text-align:center;">${commande.totalTtc}</td>
+          </tr>
+              </tfoot>
+            </table>
+          </div>
+        </body>
+      </html>
+          `,
+      commande._id
+    );
+    let savedCmd = await getCommandeInfo(new_commande._id);
+
+    //res.status(200).json({ success: true, data: new_commande });
+     res.status(200).json({ success: true, data: savedCmd });
   } catch (err) {
     // res.end();
     // console.log(err);
@@ -281,6 +518,7 @@ const generateInvoice = async (req, res) => {
           <address>
             ${commandeDetails.adresseFacturation}<br />
             ${commandeDetails.client.nom}
+            <br/>
             ${commandeDetails.client.prenom}
           </address>
         </div>
@@ -366,4 +604,5 @@ module.exports = {
   modifierStatus,
   generateInvoice,
   testEmail,
+  ajouterFacture
 };
