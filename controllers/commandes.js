@@ -3,7 +3,7 @@ const DetailArticle = require("../models/DetailArticle");
 const Suivie = require("../models/Suivie");
 const Paiement = require("../models/Paiement");
 const gmail_mailer = require("../config/mailer");
-const sendMail = require ("../config/nodeMailer")
+const sendMail = require("../config/nodeMailer");
 const mongoose = require("mongoose");
 var ObjectId = mongoose.Types.ObjectId;
 const generatePDF = require("../utils/generatePdf");
@@ -280,13 +280,16 @@ const generateInvoice = async (req, res) => {
           <h5>ADRESSE FACTURATION</h5>
           <address>
             ${commandeDetails.adresseFacturation}<br />
-           
+            ${commandeDetails.client.nom}
+            ${commandeDetails.client.prenom}
           </address>
         </div>
         <div class="address-block">
           <h5>ADRESSE LIVRAISON</h5>
           <address>
+          ${commandeDetails.nFacture}
            ${commandeDetails.adresseLivraison}
+           ${commandeDetails.client.email}
           </address>
         </div>
       </header>
@@ -352,10 +355,7 @@ const generateInvoice = async (req, res) => {
 const testEmail = async (req, res) => {
   await gmail_mailer(req.body.email, req.body.subject, req.body.description);
   res.status(200).json({ success: true });
- 
 };
-
-
 
 module.exports = {
   getCommandes,
@@ -366,5 +366,4 @@ module.exports = {
   modifierStatus,
   generateInvoice,
   testEmail,
- 
 };
