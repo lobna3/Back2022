@@ -536,8 +536,8 @@ const generateInvoice = async (req, res) => {
                 <div>
                   <strong>Arsela</strong>
                 </div>
-                <div> Boulevard Khalifa Karoui, Immeuble T.M.S</div>
-                <div>4ème étage Bureau D-2, Sahloul 4054 Sousse, Tunisie</div>
+                <div> Boulevard Khalifa Karoui</div>
+                <div> Sahloul 4054 Sousse, Tunisie</div>
                 <div>Email: info@arsela.co</div>
                 <div>Phone: (+216) 26 314 922</div>
               </div>
@@ -632,6 +632,8 @@ const generateInvoice = async (req, res) => {
           </div>
           
           </div>
+          
+          
       </body>
       </html>
       `,
