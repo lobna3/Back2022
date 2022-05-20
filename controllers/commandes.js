@@ -630,6 +630,7 @@ const generateInvoice = async (req, res) => {
               <p>Note:${commandeDetails.note}</p>
             </div>
           </div>
+          
           </div>
       </body>
       </html>
