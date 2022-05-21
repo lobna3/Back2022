@@ -158,8 +158,8 @@ const ajouterCommande = async (req, res) => {
   try {
     /* commande : {}, 
         details articles : [{} , {}] */
-    // console.log("Commande", req.body.commande);
-    //console.log("Articles", req.body.articles);
+     console.log("Suivies", req.body.suivies);
+     console.log("Paiements", req.body.paiements);
     const new_commande = new Commande(req.body.commande);
     await new_commande.save();
 
