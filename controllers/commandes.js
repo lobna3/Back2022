@@ -401,8 +401,11 @@ const ajouterFacture = async (req, res) => {
 
 const modifierCommande = async (req, res) => {
   try {
-    await Commande.updateOne({ _id: req.params.id }, req.body);
+  
+     await Commande.updateOne({ _id: req.params.id }, req.body);
+    
     res.send("mise à jour effectué avec succées!");
+
   } catch (err) {
     res.send(err);
   }

@@ -5,12 +5,12 @@ const Commande = require('./Commande');
 const suivieSchema = new Schema({
     typeS: {
         type: String,
-        required: true
+        //required: true
     },
   
     titreS: {
         type: String,
-        required: true
+       // required: true
     },
     descriptionS : {
         type: String,
