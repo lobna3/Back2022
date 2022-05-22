@@ -6,20 +6,20 @@ const paiementSchema = new Schema({
   
     soldeP : {
         type: String,
-        required: true
+        required: false
     },
     typePaiement : {
         type: String,
-        required: true
+        required: false
     },
 
     regPaiement: {
         type: String,
-        required: true
+        required: false
     },
     etatP : {
         type: String,
-        required: true
+        required: false
     },
     reste : {
         type: String,
@@ -42,7 +42,7 @@ const paiementSchema = new Schema({
         required: false
     },
     dateP : {
-        type: Date,
+        type: String,
         required: false
     },
     montantP : {

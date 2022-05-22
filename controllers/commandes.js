@@ -411,6 +411,27 @@ const modifierCommande = async (req, res) => {
   }
 };
 
+const modifierFacture = async (req, res) => {
+  try {
+  
+    var comd1 =  await Commande.updateOne({ _id: req.params.id }, req.body);
+    await comd1.save();
+
+    if (req.body.paiements) {
+      await req.body.paiements.map(async (c) => {
+        var new_paiement = new Paiement(c);
+        new_paiement.commande = comd1._id;
+        await new_paiement.save();
+      });
+    }
+    
+    res.send("mise à jour effectué avec succées!");
+
+  } catch (err) {
+    res.send(err);
+  }
+};
+
 const modifierStatus = async (req, res) => {
   try {
     var comd = await Commande.findOne({ _id: req.params.id });
