@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-//const Utilisateur = require('./Utilisateur');
+const Utilisateur = require('./Utilisateur');
 
 const UserProfile = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: "utilisateurs",
+      ref: Utilisateur,
       required: true
     },
     tel: "string",

@@ -31,7 +31,7 @@ const AddProfile = async (req ,res)=>{
 
 const FindAllProfiles = async (req ,res)=>{
     try {
-       const data =  await ProfileModel.find().populate('user', ["name", "email", "role"])
+       const data =  await ProfileModel.find().populate('user')
        res.status(200).json(data)
 
     } catch (error) {

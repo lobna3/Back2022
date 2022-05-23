@@ -13,6 +13,7 @@ app.get("/profiles",
 passport.authenticate("jwt", { session: false }),
 inRole(ROLES.ADMIN),utilisateurCtrl.
 FindAllProfiles);
+
 // get one profiles 
 app.get("/profile", 
 passport.authenticate("jwt", { session: false }),utilisateurCtrl.
