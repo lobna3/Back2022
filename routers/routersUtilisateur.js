@@ -14,6 +14,10 @@ const router = (app) => {
 
   app.put("/maj_utilisateur/:id",utilisateurCtrl.modifierUtilisateur );
 
+  app.post("/register", utilisateurCtrl.Register);
+
+  app.post("/login",utilisateurCtrl.Login);
+
 }
 
 module.exports = router;

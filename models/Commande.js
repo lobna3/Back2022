@@ -20,10 +20,12 @@ const commandeSchema = new Schema({
   },
   nFacture: {
     type: String,
+    unique:true,
     required: true,
   },
   nReference: {
     type: String,
+    unique:true,
     required: true,
   },
   total: {

@@ -5,24 +5,26 @@ const utilisateurSchema = new Schema({
   
     nom : {
         type: String,
-        required: true
+        //required: true
     },
     prenom : {
         type: String,
-        required: true
+       // required: true
     },
 
     email: {
         type: String,
-        required: true
+        trim: true,
+        unique:true,
+        //required: true
     },
     password : {
         type: String,
-        required: true
+        //required: true
     },
     numTelp : {
         type: String,
-        required: true
+       // required: true
     },
     role: {
         type: String,
