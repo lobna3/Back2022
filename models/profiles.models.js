@@ -7,7 +7,7 @@ const UserProfile = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: "utilisateurs",
-     // required: true
+      required: true
     },
     tel: "string",
     city: "string",
