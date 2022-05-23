@@ -29,6 +29,8 @@ require("./routers/routersPaiement")(app);
 require("./routers/routersProduitService")(app);
 require("./routers/routersDetailArticle")(app);
 require("./routers/Payment")(app);
+require("./routers/routersProfiles")(app);
+
 app.use("/documents", express.static(path.join(__dirname + "/doc")));
 mongoose.connect(
   "mongodb+srv://lobna:lobna@cluster0.rnsmt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
