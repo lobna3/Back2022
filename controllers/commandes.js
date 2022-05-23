@@ -83,11 +83,12 @@ const getCommandeInfo = async (id) => {
     console.log("Result", r[0]);
     let mappedResult = r[0].articles.map(async (elm) => {
       let article = await DetailArticle.findById(elm).populate("service");
+     
       return article;
     });
     let newArticles = await Promise.all(mappedResult);
     let finalResult = { ...r[0], articles: newArticles };
-    return finalResult;
+    res.send(finalResult);
     // .exec(async function (err, results) {
     //   if (results && results.length > 0) {
     //     var r = await Commande.populate(results[0], { path: "client" });
@@ -486,205 +487,215 @@ const generateInvoice = async (req, res) => {
     let { commandeDetails } = req.body;
     console.log("Commande details", commandeDetails.articles);
     const pdf = await generatePDF(
-      `
+      `<!DOCTYPE html>
       <html>
-      <head>
-      <style>
-      .invoice-box {
-          max-width: 800px;
-          margin: auto;
-          padding: 30px;
-          border: 1px solid #eee;
-          box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-          font-size: 16px;
-          line-height: 24px;
-          font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-          color: #555;
-      }
-  
-      .invoice-box table {
-          width: 100%;
-          line-height: inherit;
-          text-align: left;
-      }
-  
-      .invoice-box table td {
-          padding: 5px;
-          vertical-align: top;
-      }
-  
-      .invoice-box table tr td:nth-child(2) {
-          text-align: right;
-      }
-  
-      .invoice-box table tr.top table td {
-          padding-bottom: 20px;
-      }
-  
-      .invoice-box table tr.top table td.title {
-          font-size: 45px;
-          line-height: 45px;
-          color: #333;
-      }
-  
-      .invoice-box table tr.information table td {
-          padding-bottom: 40px;
-      }
-  
-      .invoice-box table tr.heading td {
-          background: #eee;
-          border-bottom: 1px solid #ddd;
-          font-weight: bold;
-      }
-  
-      .invoice-box table tr.details td {
-          padding-bottom: 20px;
-      }
-  
-      .invoice-box table tr.item td {
-          border-bottom: 1px solid #eee;
-      }
-  
-      .invoice-box table tr.item.last td {
-          border-bottom: none;
-      }
-  
-      .invoice-box table tr.total td:nth-child(2) {
-          font-weight: bold;
-      }
-  
-      @media only screen and (max-width: 600px) {
-          .invoice-box table tr.top table td {
+        <head>
+          <meta charset="utf-8" />
+          <title>A simple, clean, and responsive HTML invoice template</title>
+      
+          <style>
+            .invoice-box {
+              max-width: 800px;
+              margin: auto;
+              padding: 30px;
+              border: 1px solid #eee;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+              font-size: 16px;
+              line-height: 24px;
+              font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+              color: #555;
+            }
+      
+            .invoice-box table {
               width: 100%;
-              display: block;
-              text-align: center;
-          }
-  
-          .invoice-box table tr.information table td {
-              width: 100%;
-              display: block;
-              text-align: center;
-          }
-      }
-  
-      /** RTL **/
-      .rtl {
-          direction: rtl;
-          font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-      }
-  
-      .rtl table {
-          text-align: right;
-      }
-  
-      .rtl table tr td:nth-child(2) {
-          text-align: left;
-      }
-  </style>
-  
-  <div>
-      <div class="invoice-box">
-          <table cellpadding="0" cellspacing="0">
+              line-height: inherit;
+              text-align: left;
+            }
+      
+            .invoice-box table td {
+              padding: 5px;
+              vertical-align: top;
+            }
+      
+            .invoice-box table tr td:nth-child(2) {
+              text-align: right;
+            }
+      
+            .invoice-box table tr.top table td {
+              padding-bottom: 20px;
+            }
+      
+            .invoice-box table tr.top table td.title {
+              font-size: 45px;
+              line-height: 45px;
+              color: #333;
+            }
+      
+            .invoice-box table tr.information table td {
+              padding-bottom: 40px;
+            }
+      
+            .invoice-box table tr.heading td {
+              background: #eee;
+              border-bottom: 1px solid #ddd;
+              font-weight: bold;
+            }
+      
+            .invoice-box table tr.details td {
+              padding-bottom: 20px;
+            }
+      
+            .invoice-box table tr.item td {
+              border-bottom: 1px solid #eee;
+            }
+      
+            .invoice-box table tr.item.last td {
+              border-bottom: none;
+            }
+      
+            .invoice-box table tr.total td:nth-child(2) {
+              border-top: 2px solid #eee;
+              font-weight: bold;
+            }
+      
+            @media only screen and (max-width: 600px) {
+              .invoice-box table tr.top table td {
+                width: 100%;
+                display: block;
+                text-align: center;
+              }
+      
+              .invoice-box table tr.information table td {
+                width: 100%;
+                display: block;
+                text-align: center;
+              }
+            }
+      
+            /** RTL **/
+            .invoice-box.rtl {
+              direction: rtl;
+              font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+            }
+      
+            .invoice-box.rtl table {
+              text-align: right;
+            }
+      
+            .invoice-box.rtl table tr td:nth-child(2) {
+              text-align: left;
+            }
+          </style>
+        </head>
+      
+        <body>
+          <div class="invoice-box">
+            <table cellpadding="0" cellspacing="0">
               <tr class="top">
-                  <td colspan="2">
-                      <table>
-                          <tr>
-                              <td class="title">
-                              </td>
-                              <td>
-                                  Facture #: ${commandeDetails.nFacture}<br>
-                                  DateFacturation:${
-                                    commandeDetails.dateEmission
-                                  }<br>
-                                  DateEchence:${
-                                    commandeDetails.dateEcheance
-                                  }<br>
-                                  Status:${commandeDetails.status}
-                              </td>
-                          </tr>
-                      </table>
-                  </td>
+                <td colspan="2">
+                  <table>
+                    <tr>
+                      <td class="title">
+                        <img src="https://www.sparksuite.com/images/logo.png" style="width: 100%; max-width: 300px" />
+                      </td>
+      
+                      <td>
+                      ${commandeDetails.status} #: ${commandeDetails.nFacture}<br />
+                      Date de facturation:${
+                        commandeDetails.dateEmission
+                      }<br />
+                      Date d'echéance:${
+                        commandeDetails.dateEcheance
+                      }
+                      </td>
+                    </tr>
+                  </table>
+                </td>
               </tr>
-  
+      
               <tr class="information">
-                  <td colspan="2">
-                      <table >
-                          <tr>
-                              <td>
-                              Arsela.<br>
-                              Boulevard Khalifa Karoui<br>
-                              Sahloul 4054 Sousse, Tunisie<br>
-                              Email: info@arsela.com<br>
-                              Phone: (+216) 26 314 922
-                              </td>
-  
-                              <td>
-                              Attn:
-                              ${commandeDetails.client.titre}
-                              ${commandeDetails.client.nom}
-                              ${commandeDetails.client.prenom}.<br>
-                              ${commandeDetails.client.activite}<br>
-                              Email:
-                              ${commandeDetails.client.email}<br>
-                              Phone:
-                              ${commandeDetails.client.telephone}
-                              </td>
-                          </tr>
-                      </table>
-                  </td>
+                <td colspan="2">
+                  <table>
+                    <tr>
+                      <td>
+                      Arsela.<br />
+                      Sahloul 4054 Sousse, Tunisie<br />
+                      Email: info@arsela.com
+                      </td>
+      
+                      <td>
+                      Attn:
+                      ${commandeDetails.client.titre}
+                      ${commandeDetails.client.nom}
+                      ${commandeDetails.client.prenom}.<br />
+                      ${commandeDetails.client.activite}<br />
+                      ${commandeDetails.client.email}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
               </tr>
-  
-              <tr>
-              <td>
-              Article
-           </td> 
-           <td>Qte</td>
-           <td>
-           PU
-        </td>   
-        <td>
-        TAX
-     </td>      
-     <td>
-     Prix
-  </td>         
-  </tr>             
-              
-          <h1>FACTURE </h1>
-            
+             <table>
+              <tr class="heading">
+                <td>Article & Description</td>
+                <td>QTE</td>
+                <td>PU</td>
+                <td>TAX</td>
+                <td> Prix</td>
+              </tr>
               ${commandeDetails.articles.map(
-                (elm) => `  <tr class="item">
-              <td > ${elm.service.titre}</td>
-              <td >${elm.qte}</td>
-              <td>${elm.pu} DT</td>
-              <td >${elm.taxe}</td>
+                (elm) => `<tr class="item">
+              <td>${elm.service.titre} ${elm.service.description}</td>
+              <td>${elm.qte}</td>
+              <td>${elm.pu}DT </td>
+              <td>${elm.taxe}</td>
               <td>${elm.prix}DT</td>
             </tr>`
               )}
-           
-             
-  
+              </table>
+              <table>
+              <tr class="total">
+                <td></td>
+      
+                <td>SubTotal :${commandeDetails.total} DT</td>
+              </tr>
               <tr class="total">
               <td></td>
-                  <td>SubTotal :${commandeDetails.total} DT</td>
-               </tr>
-               <tr class="total">
-               <td></td>
-                   <td>Remise :${commandeDetails.remise} DT</td>
-                </tr>
-                <tr class="total">
-                <td></td>
-                    <td>Tax(16%) :${commandeDetails.taxes} DT</td>
-                 </tr>
-                 <tr class="total">
-                 <td></td>
-                     <td>TotalTTc :${commandeDetails.totalTtc} DT</td>
-                  </tr>
-            
-          </table>
-      </div>
-  </div>
-      </body>
+    
+              <td>Remise :${commandeDetails.remise} DT</td>
+            </tr>
+            <tr class="total">
+              <td></td>
+    
+              <td>Tax:${commandeDetails.taxes} DT</td>
+            </tr>
+            <tr class="total">
+              <td></td>
+    
+              <td>TotalTTc :${commandeDetails.totalTtc} DT</td>
+            </tr>
+              </table>
+              <table>
+              <tr class="heading">
+                <td>Mode de paiement</td>
+      
+                <td>Check #</td>
+              </tr>
+      
+              <tr class="details">
+                <td>Check</td>
+      
+                <td>1000</td>
+              </tr>
+             </table>
+            </table>
+            <div className="row">
+            <div className="col-sm-7 col-12 text-center text-sm-left">
+              <h6>Terms &amp; Condition</h6>
+              <p>Le pilote d'essai n'est pas toujours l'entreprise la plus saine..</p>
+            </div>
+          </div>
+        </body>
       </html>
       `,
       commandeDetails._id
