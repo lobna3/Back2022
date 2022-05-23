@@ -68,7 +68,7 @@ const Login = async(req, res)=>{
 };
 
 const Test = (req, res)=>{
-  res.send("welcome user")
+  res.send("Bienvenue utilisateur")
 };
 
 const Admin = (req, res)=>{

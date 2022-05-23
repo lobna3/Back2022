@@ -4,6 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser"); // manipulation des objets dans la req
 const res = require("express/lib/response");
 //const jwt = require('jsonwebtoken'); //jwt: JSON Web Token : les jetons d'accées
+const passport = require('passport')
 const dotenv = require("dotenv");
 const path = require("path");
 dotenv.config();
@@ -13,6 +14,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json());
+
+/* passport */
+app.use(passport.initialize())
+require('./security/passport')(passport)
 
 /* routage */
 require("./routers/routersUtilisateur")(app);

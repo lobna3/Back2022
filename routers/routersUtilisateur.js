@@ -1,5 +1,6 @@
 
-const utilisateurCtrl = require('../controllers/utilisateur')
+const utilisateurCtrl = require('../controllers/utilisateur');
+const passport = require("passport");
 
 const router = (app) => {
 
@@ -17,6 +18,10 @@ const router = (app) => {
   app.post("/register", utilisateurCtrl.Register);
 
   app.post("/login",utilisateurCtrl.Login);
+
+  app.get("/testoken",passport.authenticate("jwt", { session: false }),utilisateurCtrl.Test);
+
+  app.get("/testadmin",passport.authenticate("jwt", { session: false }),utilisateurCtrl.Admin);
 
 }
 
