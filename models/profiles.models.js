@@ -9,7 +9,7 @@ const UserProfile = new Schema(
       ref: Utilisateur,
       required: true
     },
-    tel: "string",
+  
     city: "string",
     country: "string",
     postalcode: "string",
