@@ -52,7 +52,7 @@ const Login = async(req, res)=>{
               nom: user.nom,
               email: user.email,
               role: user.role
-             }, process.env.PRIVATE_KEY,  { expiresIn: '3h' });
+             }, process.env.PRIVATE_KEY,  { expiresIn: '24h' });
              res.status(200).json({
                message: "success",
                token: "Bearer "+token
